@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmileGuard — AI Health Consulting</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --mint:    #0EA882;
+    --mint-lt: #E6F7F3;
+    --mint-md: #B2E8DC;
+    --sky:     #EAF6FF;
+    --ink:     #0D1F1A;
+    --ink2:    #1E3530;
+    --muted:   #6B8C85;
+    --line:    rgba(14,168,130,0.13);
+    --white:   #FFFFFF;
+    --bg:      #F7FBFA;
+    --card:    #FFFFFF;
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-ui: 'Cabinet Grotesk', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); overflow-x: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 68px;
+    background: rgba(247,251,250,0.85); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--mint); display: flex; align-items: center; justify-content: center;
+  }
+  .nav-logo-text { font-family: var(--font-ui); font-weight: 800; font-size: 17px; color: var(--ink); letter-spacing: -0.02em; }
+  .nav-logo-text span { color: var(--mint); }
+  .nav-links { display: flex; gap: 36px; }
+  .nav-link { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-link:hover { color: var(--mint); }
+  .nav-cta {
+    background: var(--mint); color: white; padding: 10px 22px;
+    border-radius: 100px; font-size: 14px; font-weight: 700; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(14,168,130,0.25);
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(14,168,130,0.35); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 100px 48px 80px; position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(14,168,130,0.08) 0%, transparent 70%);
+  }
+  .hero-dots {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: radial-gradient(circle, rgba(14,168,130,0.12) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 40%, transparent 100%);
+  }
+  .hero-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--mint-lt); border: 1px solid var(--mint-md);
+    padding: 8px 18px; border-radius: 100px; margin-bottom: 32px;
+    position: relative; z-index: 1;
+    animation: fadeSlideDown 0.7s ease both;
+  }
+  .hero-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+  .hero-pill-text { font-size: 13px; font-weight: 700; color: var(--mint); letter-spacing: 0.04em; }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 7.5vw, 96px);
+    line-height: 1.05; letter-spacing: -0.02em; color: var(--ink);
+    max-width: 900px; margin: 0 auto 28px;
+    position: relative; z-index: 1;
+    animation: fadeSlideUp 0.8s 0.1s ease both;
+  }
+  .hero-title em { color: var(--mint); font-style: italic; }
+  .hero-sub {
+    font-size: 18px; line-height: 1.7; color: var(--muted); max-width: 580px;
+    margin: 0 auto 48px; position: relative; z-index: 1;
+    animation: fadeSlideUp 0.8s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    position: relative; z-index: 1;
+    animation: fadeSlideUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--mint); color: white; padding: 16px 36px;
+    border-radius: 100px; font-size: 15px; font-weight: 700; text-decoration: none;
+    box-shadow: 0 6px 24px rgba(14,168,130,0.3); transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(14,168,130,0.4); }
+  .btn-ghost {
+    background: white; color: var(--ink); padding: 16px 36px;
+    border-radius: 100px; font-size: 15px; font-weight: 700; text-decoration: none;
+    border: 1px solid rgba(14,168,130,0.2); transition: border-color 0.2s, transform 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--mint); transform: translateY(-3px); }
+
+  @keyframes fadeSlideDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeSlideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Hero visual */
+  .hero-visual {
+    margin-top: 72px; position: relative; z-index: 1; width: 100%; max-width: 900px;
+    animation: fadeSlideUp 1s 0.4s ease both;
+  }
+  .hero-card {
+    background: white; border-radius: 24px; border: 1px solid var(--line);
+    box-shadow: 0 24px 80px rgba(14,168,130,0.1), 0 4px 16px rgba(0,0,0,0.04);
+    padding: 32px; text-align: left; overflow: hidden; position: relative;
+  }
+  .hero-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .chat-avatar {
+    width: 44px; height: 44px; border-radius: 14px; background: var(--mint);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .chat-name { font-weight: 700; font-size: 15px; color: var(--ink); }
+  .chat-status { font-size: 12px; color: var(--mint); font-weight: 500; }
+  .chat-msgs { display: flex; flex-direction: column; gap: 14px; }
+  .chat-msg { display: flex; gap: 12px; align-items: flex-start; }
+  .chat-msg.user { flex-direction: row-reverse; }
+  .chat-bubble {
+    background: var(--mint-lt); border: 1px solid var(--mint-md);
+    padding: 12px 18px; border-radius: 16px 16px 16px 4px;
+    font-size: 14px; line-height: 1.55; color: var(--ink2); max-width: 75%;
+  }
+  .chat-msg.user .chat-bubble { background: var(--mint); color: white; border-color: var(--mint); border-radius: 16px 16px 4px 16px; }
+  .chat-msg-ava { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .chat-msg-ava.ai { background: var(--mint); }
+  .chat-msg-ava.user-ava { background: #E8E8E8; }
+  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+  .typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); animation: typingDot 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingDot { 0%,80%,100%{transform:scale(0.7);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+  /* Floating badges */
+  .float-badge {
+    position: absolute; background: white; border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .float-badge-1 { top: -20px; right: 40px; animation: float1 4s ease-in-out infinite; }
+  .float-badge-2 { bottom: 30px; left: -20px; animation: float2 4s 1s ease-in-out infinite; }
+  @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+  .fb-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .fb-label { font-size: 12px; color: var(--muted); }
+  .fb-val { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: var(--mint); padding: 0;
+  }
+  .stats-bar-inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 48px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  }
+  .stat-cell {
+    padding: 40px 32px; border-right: 1px solid rgba(255,255,255,0.15);
+    text-align: center;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-num { font-family: var(--font-display); font-size: 42px; color: white; line-height: 1; margin-bottom: 6px; }
+  .stat-lbl { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; }
+
+  /* ── HOW IT WORKS ── */
+  .section { padding: 100px 48px; max-width: 1100px; margin: 0 auto; }
+  .section-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mint); margin-bottom: 16px; }
+  .section-title { font-family: var(--font-display); font-size: clamp(36px, 4vw, 52px); color: var(--ink); line-height: 1.1; margin-bottom: 16px; letter-spacing: -0.02em; }
+  .section-title em { font-style: italic; color: var(--mint); }
+  .section-sub { font-size: 16px; color: var(--muted); line-height: 1.7; max-width: 520px; }
+
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 64px; }
+  .step-card {
+    background: white; border: 1px solid var(--line); border-radius: 20px;
+    padding: 36px 32px; position: relative; overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .step-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(14,168,130,0.1); }
+  .step-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--mint), transparent); opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .step-card:hover::before { opacity: 1; }
+  .step-num {
+    font-family: var(--font-display); font-size: 64px; color: rgba(14,168,130,0.07);
+    line-height: 1; margin-bottom: -8px; font-style: italic;
+  }
+  .step-icon {
+    width: 52px; height: 52px; border-radius: 14px; background: var(--mint-lt);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+  }
+  .step-title { font-size: 19px; font-weight: 800; color: var(--ink); margin-bottom: 10px; }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* ── FEATURES ── */
+  .features-section { background: var(--ink); padding: 100px 48px; }
+  .features-inner { max-width: 1100px; margin: 0 auto; }
+  .features-section .section-eyebrow { color: var(--mint); }
+  .features-section .section-title { color: white; }
+  .features-section .section-sub { color: rgba(255,255,255,0.5); }
+
+  .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 64px; }
+  .feat-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px; padding: 36px 32px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .feat-card:hover { background: rgba(14,168,130,0.07); border-color: rgba(14,168,130,0.25); }
+  .feat-card.wide { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .feat-icon { width: 52px; height: 52px; border-radius: 14px; background: rgba(14,168,130,0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+  .feat-title { font-size: 19px; font-weight: 800; color: white; margin-bottom: 10px; }
+  .feat-desc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+  .feat-visual { border-radius: 14px; background: rgba(14,168,130,0.08); border: 1px solid rgba(14,168,130,0.15); padding: 28px; }
+
+  /* Treatment plan preview */
+  .plan-card { background: rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+  .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .plan-title-t { font-size: 13px; font-weight: 700; color: white; }
+  .plan-badge { background: rgba(14,168,130,0.2); color: var(--mint); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.05em; }
+  .plan-steps { display: flex; flex-direction: column; gap: 8px; }
+  .plan-step-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.6); }
+  .plan-step-dot { width: 20px; height: 20px; border-radius: 50%; background: rgba(14,168,130,0.2); border: 1px solid var(--mint); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .plan-step-dot svg { width: 10px; height: 10px; }
+
+  /* ── WHO WE SERVE ── */
+  .serve-section { padding: 100px 48px; max-width: 1100px; margin: 0 auto; }
+  .serve-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; margin-top: 64px; }
+  .serve-cards { display: flex; flex-direction: column; gap: 16px; }
+  .serve-card {
+    background: white; border: 1px solid var(--line); border-radius: 16px;
+    padding: 24px 28px; display: flex; align-items: flex-start; gap: 18px;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .serve-card:hover { transform: translateX(6px); box-shadow: 0 8px 24px rgba(14,168,130,0.1); }
+  .serve-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--mint-lt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .serve-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .serve-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .serve-text .section-title { max-width: 380px; }
+  .impact-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 36px; }
+  .impact-num-card { background: var(--mint-lt); border: 1px solid var(--mint-md); border-radius: 14px; padding: 24px; }
+  .impact-n { font-family: var(--font-display); font-size: 36px; color: var(--mint); line-height: 1; margin-bottom: 4px; }
+  .impact-l { font-size: 13px; color: var(--muted); font-weight: 500; }
+
+  /* ── BUILT ON AZURE ── */
+  .azure-section { background: var(--sky); border-top: 1px solid rgba(14,168,130,0.1); border-bottom: 1px solid rgba(14,168,130,0.1); padding: 80px 48px; }
+  .azure-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .azure-title { font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 42px); color: var(--ink); line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.02em; }
+  .azure-sub { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 32px; }
+  .azure-services { display: flex; flex-direction: column; gap: 12px; }
+  .azure-service { display: flex; align-items: center; gap: 14px; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; }
+  .azure-service-icon { width: 36px; height: 36px; border-radius: 8px; background: #0078D4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .azure-service-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .azure-service-desc { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .azure-credit-ask {
+    background: var(--ink); border-radius: 20px; padding: 40px;
+    text-align: center; color: white;
+  }
+  .azure-ask-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mint); margin-bottom: 12px; }
+  .azure-ask-amount { font-family: var(--font-display); font-size: 56px; color: white; line-height: 1; margin-bottom: 8px; }
+  .azure-ask-sub { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 28px; }
+  .azure-ask-items { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .azure-ask-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7); }
+  .azure-check { width: 20px; height: 20px; border-radius: 50%; background: rgba(14,168,130,0.2); border: 1px solid var(--mint); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* ── CTA ── */
+  .cta-section { padding: 100px 48px; text-align: center; }
+  .cta-inner { max-width: 660px; margin: 0 auto; }
+  .cta-title { font-family: var(--font-display); font-size: clamp(38px, 5vw, 60px); color: var(--ink); line-height: 1.1; margin-bottom: 20px; letter-spacing: -0.02em; }
+  .cta-title em { color: var(--mint); font-style: italic; }
+  .cta-sub { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 40px; }
+  .cta-form { display: flex; gap: 12px; max-width: 440px; margin: 0 auto; }
+  .cta-input {
+    flex: 1; padding: 14px 20px; border: 1px solid rgba(14,168,130,0.2);
+    border-radius: 100px; font-size: 14px; font-family: var(--font-ui);
+    color: var(--ink); outline: none; background: white;
+    transition: border-color 0.2s;
+  }
+  .cta-input:focus { border-color: var(--mint); box-shadow: 0 0 0 3px rgba(14,168,130,0.1); }
+  .cta-input::placeholder { color: #AAC0BB; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink); padding: 56px 48px 40px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;
+  }
+  .footer-logo { font-family: var(--font-ui); font-weight: 800; font-size: 18px; color: white; letter-spacing: -0.02em; }
+  .footer-logo span { color: var(--mint); }
+  .footer-tagline { font-size: 13px; color: rgba(255,255,255,0.35); margin-top: 4px; }
+  .footer-links { display: flex; gap: 28px; }
+  .footer-link { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+  .footer-link:hover { color: var(--mint); }
+  .footer-badge { background: rgba(14,168,130,0.1); border: 1px solid rgba(14,168,130,0.2); border-radius: 100px; padding: 8px 18px; display: flex; align-items: center; gap: 8px; }
+  .footer-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); animation: pulse 2s ease-in-out infinite; }
+  .footer-badge-text { font-size: 12px; font-weight: 700; color: var(--mint); }
+
+  /* ── FADE IN ── */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.on { opacity: 1; transform: none; }
+  .reveal-d1 { transition-delay: 0.1s; }
+  .reveal-d2 { transition-delay: 0.2s; }
+  .reveal-d3 { transition-delay: 0.3s; }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 90px 24px 60px; }
+    .stats-bar-inner, .steps-grid, .features-grid, .serve-grid, .azure-inner { grid-template-columns: 1fr; }
+    .feat-card.wide { grid-column: span 1; grid-template-columns: 1fr; }
+    .section, .serve-section { padding: 60px 24px; }
+    footer { flex-direction: column; gap: 28px; text-align: center; padding: 40px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2C6.13 2 3 5.13 3 9c0 2.38 1.19 4.47 3 5.74V17h8v-2.26C15.81 13.47 17 11.38 17 9c0-3.87-3.13-7-7-7z" fill="white" opacity="0.9"/>
+        <path d="M7 17h6v1.5a.5.5 0 01-.5.5h-5a.5.5 0 01-.5-.5V17z" fill="white" opacity="0.6"/>
+        <circle cx="10" cy="9" r="3" fill="white" opacity="0.3"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">Smile<span>Guard</span></span>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="#how">How it works</a>
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#impact">Impact</a>
+    <a class="nav-link" href="#azure">Infrastructure</a>
+  </div>
+  <a class="nav-cta" href="#waitlist">Join Waitlist</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-dots"></div>
+
+  <div class="hero-pill">
+    <div class="hero-pill-dot"></div>
+    <span class="hero-pill-text">AI Health Consulting — Now in Beta</span>
+  </div>
+
+  <h1 class="hero-title">
+    Healthcare guidance,<br><em>wherever you are.</em>
+  </h1>
+  <p class="hero-sub">SmileGuard delivers personalized, AI-powered health consultations from home — giving underserved communities access to quality care, and giving doctors more time to focus on what matters most.</p>
+
+  <div class="hero-actions">
+    <a href="#waitlist" class="btn-primary">
+      Get Early Access
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="#how" class="btn-ghost">See how it works</a>
+  </div>
+
+  <div class="hero-visual" style="position:relative;">
+    <!-- Float badges -->
+    <div class="float-badge float-badge-1">
+      <div class="fb-icon" style="background:var(--mint-lt);">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.39 4.84L18 7.64l-4 3.9.94 5.5L10 14.27l-4.94 2.77L6 11.54 2 7.64l5.61-.8L10 2z" fill="#0EA882"/></svg>
+      </div>
+      <div>
+        <div class="fb-val">4.9 / 5.0</div>
+        <div class="fb-label">User satisfaction</div>
+      </div>
+    </div>
+    <div class="float-badge float-badge-2">
+      <div class="fb-icon" style="background:rgba(14,168,130,0.1);">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#0EA882" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="fb-val">&lt; 60 sec</div>
+        <div class="fb-label">Avg. response time</div>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="hero-card-header">
+        <div class="chat-avatar">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="8" r="4" fill="white" opacity="0.9"/><path d="M3 19c0-4.42 3.58-8 8-8s8 3.58 8 8" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.7"/></svg>
+        </div>
+        <div>
+          <div class="chat-name">SmileGuard AI</div>
+          <div class="chat-status">● Online — Always available</div>
+        </div>
+      </div>
+
+      <div class="chat-msgs">
+        <div class="chat-msg">
+          <div class="chat-msg-ava ai">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" fill="white" opacity="0.9"/><path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="white" stroke-width="1.5" fill="none" opacity="0.7"/></svg>
+          </div>
+          <div class="chat-bubble">Hello! I'm your SmileGuard health assistant. How are you feeling today? Please describe your symptoms and I'll help guide you.</div>
+        </div>
+        <div class="chat-msg user">
+          <div class="chat-msg-ava user-ava">👤</div>
+          <div class="chat-bubble">I've had a mild headache and sore throat for 2 days. No fever.</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-msg-ava ai">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" fill="white" opacity="0.9"/><path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="white" stroke-width="1.5" fill="none" opacity="0.7"/></svg>
+          </div>
+          <div class="chat-bubble">Based on your symptoms, this looks like a common viral upper respiratory infection. I'm generating a personalized care plan for you now — including home remedies, rest guidance, and clear signs of when to see a doctor.
+            <div class="typing-dots" style="margin-top:8px;">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-cell">
+      <div class="stat-num">2.4B+</div>
+      <div class="stat-lbl">People in underserved communities globally</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">60%</div>
+      <div class="stat-lbl">Of ER visits are for non-emergency conditions</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">&lt;60s</div>
+      <div class="stat-lbl">Average AI consultation response time</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">MVP</div>
+      <div class="stat-lbl">Live — actively onboarding users</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div id="how">
+<div class="section reveal">
+  <div class="section-eyebrow">How it works</div>
+  <h2 class="section-title">Three steps to <em>better health</em> decisions.</h2>
+  <p class="section-sub">No waiting rooms, no travel costs. Get trusted health guidance from wherever you are, in minutes.</p>
+
+  <div class="steps-grid">
+    <div class="step-card reveal reveal-d1">
+      <div class="step-num">01</div>
+      <div class="step-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <div class="step-title">Describe your symptoms</div>
+      <div class="step-desc">Simply tell SmileGuard how you're feeling — in plain language, your native language, or using voice. No medical jargon required.</div>
+    </div>
+    <div class="step-card reveal reveal-d2">
+      <div class="step-num">02</div>
+      <div class="step-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+        </svg>
+      </div>
+      <div class="step-title">AI analyzes & consults</div>
+      <div class="step-desc">Our trained AI model evaluates your symptoms against a validated medical knowledge base and generates a tailored assessment in seconds.</div>
+    </div>
+    <div class="step-card reveal reveal-d3">
+      <div class="step-num">03</div>
+      <div class="step-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </div>
+      <div class="step-title">Receive your care plan</div>
+      <div class="step-desc">Get a personalized treatment plan — home remedies, medication guidance, lifestyle tips — plus clear signals for when to seek professional care.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FEATURES -->
+<div id="features">
+<div class="features-section reveal">
+  <div class="features-inner">
+    <div class="section-eyebrow">Platform features</div>
+    <h2 class="section-title" style="color:white;">Built for <em>real people</em><br>in real situations.</h2>
+    <p class="section-sub">SmileGuard is designed from the ground up for accessibility, accuracy, and compassion.</p>
+
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="feat-title">Individual-tailored plans</div>
+        <div class="feat-desc">Every consultation is unique. SmileGuard factors in your age, medical history, and current symptoms to generate a plan that fits you — not a generic template.</div>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+          </svg>
+        </div>
+        <div class="feat-title">24/7 availability</div>
+        <div class="feat-desc">Health concerns don't follow business hours. SmileGuard is always on — at 2am, weekends, and public holidays — for communities that need it most.</div>
+      </div>
+
+      <div class="feat-card wide">
+        <div>
+          <div class="feat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <div class="feat-title">Smart escalation — know when to see a doctor</div>
+          <div class="feat-desc" style="margin-bottom:20px;">Our AI is trained to recognize danger signs. When symptoms suggest something beyond home management, SmileGuard clearly tells users to seek professional care — and helps them find the nearest appropriate facility.</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <span style="background:rgba(14,168,130,0.15);color:var(--mint);border:1px solid rgba(14,168,130,0.25);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;">Red flag detection</span>
+            <span style="background:rgba(14,168,130,0.15);color:var(--mint);border:1px solid rgba(14,168,130,0.25);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;">Facility finder</span>
+            <span style="background:rgba(14,168,130,0.15);color:var(--mint);border:1px solid rgba(14,168,130,0.25);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;">Emergency guidance</span>
+          </div>
+        </div>
+        <div class="feat-visual">
+          <div class="plan-card">
+            <div class="plan-header">
+              <div class="plan-title-t">Your Treatment Plan</div>
+              <div class="plan-badge">MINOR CONDITION</div>
+            </div>
+            <div class="plan-steps">
+              <div class="plan-step-row">
+                <div class="plan-step-dot">
+                  <svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                Rest for 48–72 hours, stay hydrated
+              </div>
+              <div class="plan-step-row">
+                <div class="plan-step-dot">
+                  <svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                Warm salt-water gargle 3× daily
+              </div>
+              <div class="plan-step-row">
+                <div class="plan-step-dot">
+                  <svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                OTC paracetamol 500mg as needed
+              </div>
+              <div class="plan-step-row">
+                <div class="plan-step-dot" style="background:rgba(255,59,48,0.15);border-color:rgba(255,59,48,0.5);">
+                  <svg viewBox="0 0 10 10" fill="none"><path d="M5 2v4M5 8v.5" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+                <span style="color:rgba(255,100,80,0.8);">See a doctor if fever exceeds 38.5°C</span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:8px;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;">AI-GENERATED PLAN · NOT A SUBSTITUTE FOR PROFESSIONAL ADVICE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+            <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/>
+          </svg>
+        </div>
+        <div class="feat-title">Health history & tracking</div>
+        <div class="feat-desc">SmileGuard remembers your past consultations, helping it give increasingly personalized advice and spot recurring health patterns over time.</div>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA882" stroke-width="2" stroke-linecap="round">
+            <path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+          </svg>
+        </div>
+        <div class="feat-title">Multilingual support</div>
+        <div class="feat-desc">SmileGuard communicates in local languages — lowering the barrier to care for communities where English is not a first language.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- WHO WE SERVE -->
+<div id="impact">
+<div class="serve-section reveal">
+  <div class="section-eyebrow">Who we serve</div>
+  <h2 class="section-title">Closing the <em>healthcare gap</em><br>for those left behind.</h2>
+
+  <div class="serve-grid">
+    <div class="serve-cards">
+      <div class="serve-card reveal reveal-d1">
+        <div class="serve-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#0EA882" stroke-width="1.8" stroke-linecap="round">
+            <path d="M3 10a7 7 0 1014 0 7 7 0 00-14 0z"/><path d="M19 19l-4.35-4.35"/>
+          </svg>
+        </div>
+        <div>
+          <div class="serve-title">Rural & remote communities</div>
+          <div class="serve-desc">Individuals hours away from the nearest clinic now have access to instant, reliable health guidance from their phone.</div>
+        </div>
+      </div>
+      <div class="serve-card reveal reveal-d2">
+        <div class="serve-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#0EA882" stroke-width="1.8" stroke-linecap="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <div>
+          <div class="serve-title">Low-income urban households</div>
+          <div class="serve-desc">Avoiding unnecessary transport costs and time off work to attend clinics for conditions that can be safely managed at home.</div>
+        </div>
+      </div>
+      <div class="serve-card reveal reveal-d3">
+        <div class="serve-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#0EA882" stroke-width="1.8" stroke-linecap="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="serve-title">Overstretched health systems</div>
+          <div class="serve-desc">By diverting minor cases away from hospitals, SmileGuard frees doctors to focus on patients who genuinely need specialist care.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="serve-text">
+      <p class="section-sub" style="margin-bottom:32px;">In many developing nations, a visit to the hospital for a headache or stomach ache means hours of waiting, transport costs, and lost income. SmileGuard changes that.</p>
+      <div class="impact-nums">
+        <div class="impact-num-card">
+          <div class="impact-n">1 in 2</div>
+          <div class="impact-l">people in sub-Saharan Africa lack access to essential health services</div>
+        </div>
+        <div class="impact-num-card">
+          <div class="impact-n">3–4 hrs</div>
+          <div class="impact-l">average time lost per hospital visit for a minor condition</div>
+        </div>
+        <div class="impact-num-card">
+          <div class="impact-n">80%</div>
+          <div class="impact-l">of conditions seen in clinics could be managed at home with proper guidance</div>
+        </div>
+        <div class="impact-num-card">
+          <div class="impact-n">$0</div>
+          <div class="impact-l">cost to users for basic AI consultations — free tier always available</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- BUILT ON AZURE -->
+<div id="azure">
+<div class="azure-section reveal">
+  <div class="azure-inner">
+    <div>
+      <div class="section-eyebrow">Infrastructure</div>
+      <div class="azure-title">Powered by<br>Microsoft Azure.</div>
+      <p class="azure-sub">SmileGuard's AI engine, data security, and scalability are built entirely on Azure — enabling us to deliver reliable, HIPAA-aligned health services at scale.</p>
+      <div class="azure-services">
+        <div class="azure-service">
+          <div class="azure-service-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="white" stroke-width="1.5"/><path d="M6 8h8M6 12h5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="azure-service-name">Azure OpenAI Service</div>
+            <div class="azure-service-desc">Powers our AI consultation and treatment plan generation</div>
+          </div>
+        </div>
+        <div class="azure-service">
+          <div class="azure-service-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="white" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="azure-service-name">Azure App Service</div>
+            <div class="azure-service-desc">Scalable hosting for web and mobile application backends</div>
+          </div>
+        </div>
+        <div class="azure-service">
+          <div class="azure-service-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><ellipse cx="10" cy="6" rx="7" ry="3" stroke="white" stroke-width="1.5"/><path d="M3 10c0 1.66 3.13 3 7 3s7-1.34 7-3M3 6v8c0 1.66 3.13 3 7 3s7-1.34 7-3V6" stroke="white" stroke-width="1.5"/></svg>
+          </div>
+          <div>
+            <div class="azure-service-name">Azure Cosmos DB</div>
+            <div class="azure-service-desc">Secure, globally distributed patient session storage</div>
+          </div>
+        </div>
+        <div class="azure-service">
+          <div class="azure-service-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.39 4.84L18 7.64l-4 3.9.94 5.5L10 14.27l-4.94 2.77L6 11.54 2 7.64l5.61-.8L10 2z" stroke="white" stroke-width="1.5" fill="none"/></svg>
+          </div>
+          <div>
+            <div class="azure-service-name">Azure Cognitive Services</div>
+            <div class="azure-service-desc">Symptom analysis and health signal processing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="azure-credit-ask">
+      <div class="azure-ask-label">Credit Request</div>
+      <div class="azure-ask-amount">$25,000</div>
+      <div class="azure-ask-sub">Azure credit upgrade to support MVP scale-up</div>
+      <div class="azure-ask-items">
+        <div class="azure-ask-item">
+          <div class="azure-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Scaling OpenAI API calls for growing user base
+        </div>
+        <div class="azure-ask-item">
+          <div class="azure-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Expanding compute for model fine-tuning
+        </div>
+        <div class="azure-ask-item">
+          <div class="azure-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Maintaining 99.9% uptime SLA for health-critical service
+        </div>
+        <div class="azure-ask-item">
+          <div class="azure-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Multi-region deployment for underserved areas
+        </div>
+        <div class="azure-ask-item">
+          <div class="azure-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0EA882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          HIPAA-aligned storage and compliance monitoring
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section reveal" id="waitlist">
+  <div class="cta-inner">
+    <h2 class="cta-title">Better health starts <em>at home.</em></h2>
+    <p class="cta-sub">Join thousands of people getting smarter, faster health guidance — without the waiting room.</p>
+    <div class="cta-form">
+      <input class="cta-input" type="email" placeholder="Enter your email address">
+      <a class="btn-primary" href="#" style="white-space:nowrap;">Join Waitlist</a>
+    </div>
+    <p style="font-size:12px;color:#AAC0BB;margin-top:16px;">Free for basic consultations. No credit card required.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">Smile<span>Guard</span></div>
+    <div class="footer-tagline">AI health consulting for everyone, everywhere.</div>
+  </div>
+  <div class="footer-links">
+    <a class="footer-link" href="#">Privacy Policy</a>
+    <a class="footer-link" href="#">Terms</a>
+    <a class="footer-link" href="#">Medical Disclaimer</a>
+    <a class="footer-link" href="#">Contact</a>
+  </div>
+  <div class="footer-badge">
+    <div class="footer-badge-dot"></div>
+    <span class="footer-badge-text">MVP Live · Onboarding Users</span>
+  </div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const ro = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); ro.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => ro.observe(el));
+</script>
+</body>
+</html>
